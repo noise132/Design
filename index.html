@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Определитель требований к дизайну</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.22.5/babel.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+            font-size: 16px;
+        }
+        .dropdown-container {
+            position: relative;
+        }
+        .selected-options {
+            border: 1px solid #ccc;
+            padding: 10px 12px;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+            display: flex;
+            flex-wrap: wrap;
+            min-height: 44px;
+            align-items: center;
+        }
+        .selected-options:hover {
+            border-color: #888;
+        }
+        .dropdown-menu {
+            position: absolute;
+            z-index: 10;
+            top: 100%;
+            left: 0;
+            right: 0;
+            border: 1px solid #ccc;
+            border-top: none;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .option-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .option-item:hover {
+            background-color: #f5f7fa;
+        }
+        .option-item input {
+            margin-right: 10px;
+        }
+        .selected-tag {
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            border-radius: 16px;
+            padding: 4px 10px;
+            margin-right: 6px;
+            margin-bottom: 4px;
+            display: inline-flex;
+            align-items: center;
+            font-size: 14px;
+        }
+        .tag-remove {
+            margin-left: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .preview-section {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .preview-heading {
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+        }
+        .preview-content {
+            background-color: #f5f7fa;
+            padding: 20px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .copy-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 20px;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #1557b0;
+        }
+        .dropdown-placeholder {
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script type="text/babel">
+        const questionsData = [
+            {
+                id: 'projectType',
+                question: 'Тип проекта',
+                options: [
+                    'Веб-сайт',
+                    'Мобильное приложение',
+                    'Печатный материал',
+                    'Логотип',
+                    'Упаковка',
+                    'Рекламный баннер',
+                    'Брошюра',
+                    'Пользовательский интерфейс (UI)',
+                    'Плакат',
+                    'Визитная карточка'
+                ],
+                multiple: true
+            },
+            {
+                id: 'targetAudience',
+                question: 'Целевая аудитория',
+                options: [
+                    'Молодежь (18-24)',
+                    'Молодые специалисты (25-35)',
+                    'Средний возраст (36-50)',
+                    'Старший возраст (51+)',
+                    'Бизнес-клиенты (B2B)',
+                    'Потребители (B2C)',
+                    'Образовательные учреждения',
+                    'Технически подкованные пользователи',
+                    'Креативные профессионалы',
+                    'Родители'
+                ],
+                multiple: true
+            },
+            {
+                id: 'projectGoal',
+                question: 'Цель проекта',
+                options: [
+                    'Повышение узнаваемости бренда',
+                    'Увеличение продаж',
+                    'Информирование аудитории',
+                    'Обучение пользователей',
+                    'Развлечение',
+                    'Создание сообщества',
+                    'Улучшение пользовательского опыта',
+                    'Перепозиционирование бренда',
+                    'Запуск нового продукта',
+                    'Привлечение новой аудитории'
+                ],
+                multiple: true
+            },
+            {
+                id: 'designStyle',
+                question: 'Стиль дизайна',
+                options: [
+                    'Минимализм',
+                    'Материальный дизайн',
+                    'Нейоморфизм',
+                    'Ретро/Винтаж',
+                    'Плоский дизайн',
+                    'Гранж',
+                    'Корпоративный',
+                    'Рукописный',
+                    'Абстрактный',
+                    'Скевоморфизм'
+                ],
+                multiple: true
+            },
+            {
+                id: 'colorScheme',
+                question: 'Цветовая схема',
+                options: [
+                    'Монохромная',
+                    'Аналоговая',
+                    'Комплементарная',
+                    'Триадная',
+                    'Тетрадная',
+                    'Пастельные тона',
+                    'Яркие цвета',
+                    'Приглушенные цвета',
+                    'Черно-белая',
+                    'Градиенты'
+                ],
+                multiple: false
+            }
+        ];
+
+        const MultiSelectDropdown = ({ id, question, options, multiple, onChange, selectedOptions }) => {
+            const [isOpen, setIsOpen] = React.useState(false);
+
+            const handleToggle = () => {
+                setIsOpen(!isOpen);
+            };
+
+            const handleOptionClick = (option) => {
+                if (multiple) {
+                    const newSelected = selectedOptions.includes(option)
+                        ? selectedOptions.filter(item => item !== option)
+                        : [...selectedOptions, option];
+                    onChange(id, newSelected);
+                } else {
+                    onChange(id, [option]);
+                    setIsOpen(false);
+                }
+            };
+
+            const removeOption = (option, e) => {
+                e.stopPropagation();
+                const newSelected = selectedOptions.filter(item => item !== option);
+                onChange(id, newSelected);
+            };
+
+            return (
+                <div className="form-group">
+                    <label htmlFor={id}>{question}</label>
+                    <div className="dropdown-container">
+                        <div className="selected-options" onClick={handleToggle}>
+                            {selectedOptions.length === 0 ? (
+                                <span className="dropdown-placeholder">Выберите вариант{multiple ? '(ы)' : ''}</span>
+                            ) : (
+                                selectedOptions.map(option => (
+                                    <span key={option} className="selected-tag">
+                                        {option}
+                                        <span className="tag-remove" onClick={(e) => removeOption(option, e)}>×</span>
+                                    </span>
+                                ))
+                            )}
+                        </div>
+                        {isOpen && (
+                            <div className="dropdown-menu">
+                                {options.map(option => (
+                                    <div key={option} className="option-item" onClick={() => handleOptionClick(option)}>
+                                        <input 
+                                            type={multiple ? "checkbox" : "radio"} 
+                                            checked={selectedOptions.includes(option)} 
+                                            readOnly
+                                        />
+                                        {option}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [selections, setSelections] = React.useState(
+                questionsData.reduce((acc, question) => {
+                    acc[question.id] = [];
+                    return acc;
+                }, {})
+            );
+
+            const handleSelectionChange = (id, selectedOptions) => {
+                setSelections({
+                    ...selections,
+                    [id]: selectedOptions
+                });
+            };
+
+            const getPreviewText = () => {
+                let text = "Требования к дизайну:\n\n";
+                
+                questionsData.forEach(question => {
+                    text += `${question.question}:\n`;
+                    
+                    if (selections[question.id].length === 0) {
+                        text += "Не выбрано\n\n";
+                    } else {
+                        selections[question.id].forEach(option => {
+                            text += `- ${option}\n`;
+                        });
+                        text += "\n";
+                    }
+                });
+                
+                return text;
+            };
+
+            const copyToClipboard = () => {
+                const text = getPreviewText();
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        alert("Требования к дизайну скопированы в буфер обмена!");
+                    })
+                    .catch(err => {
+                        console.error('Не удалось скопировать текст: ', err);
+                    });
+            };
+
+            return (
+                <div className="container">
+                    <h1>Определитель требований к дизайну</h1>
+                    
+                    {questionsData.map(question => (
+                        <MultiSelectDropdown 
+                            key={question.id}
+                            id={question.id}
+                            question={question.question}
+                            options={question.options}
+                            multiple={question.multiple}
+                            onChange={handleSelectionChange}
+                            selectedOptions={selections[question.id]}
+                        />
+                    ))}
+                    
+                    <div className="preview-section">
+                        <h2 className="preview-heading">Предпросмотр результатов</h2>
+                        <div className="preview-content">
+                            {getPreviewText()}
+                        </div>
+                        <button className="copy-btn" onClick={copyToClipboard}>
+                            Скопировать результаты
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<App />, document.getElementById('app'));
+    </script>
+</body>
+</html>
