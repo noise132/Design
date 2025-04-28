@@ -1,382 +1,282 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Помощник дизайнера</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #444;
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-        .dropdown-group {
-            margin-bottom: 20px;
-        }
-        .dropdown-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-        .dropdown-container {
-            position: relative;
-        }
-        .dropdown-toggle {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: white;
-            cursor: pointer;
-            text-align: left;
-            font-size: 14px;
-            position: relative;
-        }
-        .dropdown-toggle::after {
-            content: "▼";
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .dropdown-menu {
-            display: none;
-            position: absolute;
-            width: 100%;
-            max-height: 300px;
-            overflow-y: auto;
-            background-color: white;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-top: 5px;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-        .dropdown-menu.show {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-        }
-        .dropdown-item {
-            padding: 8px 15px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .dropdown-item:hover {
-            background-color: #f1f1f1;
-        }
-        .chips-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-top: 10px;
-            min-height: 35px;
-        }
-        .chip {
-            background-color: #e9f5ff;
-            border: 1px solid #bfe0ff;
-            border-radius: 16px;
-            padding: 5px 10px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
-        .chip-close {
-            margin-left: 5px;
-            cursor: pointer;
-            color: #888;
-            font-weight: bold;
-        }
-        .copy-section {
-            margin-top: 30px;
-        }
-        .results-preview {
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: #f9f9f9;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .copy-button {
-            background-color: #4a89dc;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background-color 0.2s;
-        }
-        .copy-button:hover {
-            background-color: #3b78cc;
-        }
-        .copy-status {
-            margin-left: 10px;
-            color: #4a89dc;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Помощник графического дизайнера</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    .app-container {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    h1 {
+      color: #2c3e50;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .question-section {
+      margin-bottom: 30px;
+    }
+    .question-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .question-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-right: 15px;
+      min-width: 150px;
+    }
+    .selected-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      background-color: #e0f2f1;
+      border-radius: 16px;
+      padding: 5px 12px;
+      font-size: 14px;
+      color: #00796b;
+      display: flex;
+      align-items: center;
+    }
+    .chip-remove {
+      margin-left: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    .result-section {
+      margin-top: 30px;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 20px;
+    }
+    .preview-container {
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 15px;
+      background-color: #f9f9f9;
+      margin-bottom: 15px;
+      min-height: 100px;
+    }
+    .copy-button {
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    .copy-button:hover {
+      background-color: #0d8bf2;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Помощник графического дизайнера</h1>
-        
-        <div class="dropdown-group">
-            <label class="dropdown-label">Тип проекта</label>
-            <div class="dropdown-container" data-question="Тип проекта">
-                <button class="dropdown-toggle">Выберите тип проекта</button>
-                <div class="dropdown-menu" data-multi="true">
-                    <div class="dropdown-item">Логотип</div>
-                    <div class="dropdown-item">Баннер</div>
-                    <div class="dropdown-item">Веб-сайт</div>
-                    <div class="dropdown-item">Мобильное приложение</div>
-                    <div class="dropdown-item">Плакат</div>
-                    <div class="dropdown-item">Брошюра</div>
-                    <div class="dropdown-item">Упаковка</div>
-                    <div class="dropdown-item">Иллюстрация</div>
-                    <div class="dropdown-item">Инфографика</div>
-                    <div class="dropdown-item">Презентация</div>
-                    <div class="dropdown-item">Социальные медиа</div>
-                    <div class="dropdown-item">Визитка</div>
-                </div>
-                <div class="chips-container"></div>
-            </div>
-        </div>
-        
-        <div class="dropdown-group">
-            <label class="dropdown-label">Целевая аудитория</label>
-            <div class="dropdown-container" data-question="Целевая аудитория">
-                <button class="dropdown-toggle">Выберите целевую аудиторию</button>
-                <div class="dropdown-menu" data-multi="true">
-                    <div class="dropdown-item">Дети</div>
-                    <div class="dropdown-item">Подростки</div>
-                    <div class="dropdown-item">Молодежь</div>
-                    <div class="dropdown-item">Взрослые</div>
-                    <div class="dropdown-item">Пожилые люди</div>
-                    <div class="dropdown-item">Бизнес-клиенты</div>
-                    <div class="dropdown-item">Технические специалисты</div>
-                    <div class="dropdown-item">Творческие люди</div>
-                    <div class="dropdown-item">Семьи</div>
-                    <div class="dropdown-item">Мужчины</div>
-                    <div class="dropdown-item">Женщины</div>
-                    <div class="dropdown-item">Профессионалы</div>
-                </div>
-                <div class="chips-container"></div>
-            </div>
-        </div>
-        
-        <div class="dropdown-group">
-            <label class="dropdown-label">Цель проекта</label>
-            <div class="dropdown-container" data-question="Цель проекта">
-                <button class="dropdown-toggle">Выберите цель проекта</button>
-                <div class="dropdown-menu" data-multi="true">
-                    <div class="dropdown-item">Информирование</div>
-                    <div class="dropdown-item">Продажа</div>
-                    <div class="dropdown-item">Брендинг</div>
-                    <div class="dropdown-item">Обучение</div>
-                    <div class="dropdown-item">Развлечение</div>
-                    <div class="dropdown-item">Повышение узнаваемости</div>
-                    <div class="dropdown-item">Привлечение клиентов</div>
-                    <div class="dropdown-item">Мотивация</div>
-                    <div class="dropdown-item">Презентация</div>
-                    <div class="dropdown-item">Вдохновение</div>
-                    <div class="dropdown-item">Разъяснение</div>
-                    <div class="dropdown-item">Документирование</div>
-                </div>
-                <div class="chips-container"></div>
-            </div>
-        </div>
-        
-        <div class="dropdown-group">
-            <label class="dropdown-label">Стиль дизайна</label>
-            <div class="dropdown-container" data-question="Стиль дизайна">
-                <button class="dropdown-toggle">Выберите стиль дизайна</button>
-                <div class="dropdown-menu" data-multi="true">
-                    <div class="dropdown-item">Минимализм</div>
-                    <div class="dropdown-item">Футуризм</div>
-                    <div class="dropdown-item">Ретро</div>
-                    <div class="dropdown-item">Винтаж</div>
-                    <div class="dropdown-item">Классический</div>
-                    <div class="dropdown-item">Современный</div>
-                    <div class="dropdown-item">Органический</div>
-                    <div class="dropdown-item">Геометрический</div>
-                    <div class="dropdown-item">Гранж</div>
-                    <div class="dropdown-item">Абстрактный</div>
-                    <div class="dropdown-item">Иллюстративный</div>
-                    <div class="dropdown-item">3D</div>
-                </div>
-                <div class="chips-container"></div>
-            </div>
-        </div>
-        
-        <div class="dropdown-group">
-            <label class="dropdown-label">Цветовая схема</label>
-            <div class="dropdown-container" data-question="Цветовая схема">
-                <button class="dropdown-toggle">Выберите цветовую схему</button>
-                <div class="dropdown-menu" data-multi="true">
-                    <div class="dropdown-item">Монохромная</div>
-                    <div class="dropdown-item">Аналоговая</div>
-                    <div class="dropdown-item">Комплементарная</div>
-                    <div class="dropdown-item">Триадная</div>
-                    <div class="dropdown-item">Яркая</div>
-                    <div class="dropdown-item">Пастельная</div>
-                    <div class="dropdown-item">Нейтральная</div>
-                    <div class="dropdown-item">Теплая</div>
-                    <div class="dropdown-item">Холодная</div>
-                    <div class="dropdown-item">Минималистичная</div>
-                    <div class="dropdown-item">Природная</div>
-                    <div class="dropdown-item">Градиентная</div>
-                </div>
-                <div class="chips-container"></div>
-            </div>
-        </div>
-        
-        <div class="copy-section">
-            <div class="results-preview">Создай картинку как будет выглядеть дизайн с таким описанием:</div>
-            <button class="copy-button">Скопировать в буфер обмена</button>
-            <span class="copy-status">Скопировано!</span>
-        </div>
-    </div>
+  <div id="root"></div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Обработка выпадающих списков
-            const dropdownContainers = document.querySelectorAll('.dropdown-container');
-            
-            // Закрытие меню при клике вне его
-            document.addEventListener('click', (e) => {
-                dropdownContainers.forEach(container => {
-                    const menu = container.querySelector('.dropdown-menu');
-                    const toggle = container.querySelector('.dropdown-toggle');
-                    if (!container.contains(e.target) && menu.classList.contains('show')) {
-                        menu.classList.remove('show');
-                    }
-                });
-            });
-            
-            dropdownContainers.forEach(container => {
-                const toggle = container.querySelector('.dropdown-toggle');
-                const menu = container.querySelector('.dropdown-menu');
-                const chipsContainer = container.querySelector('.chips-container');
-                const multiSelect = menu.getAttribute('data-multi') === 'true';
-                const question = container.getAttribute('data-question');
-                
-                // Открытие/закрытие выпадающего списка
-                toggle.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    menu.classList.toggle('show');
-                });
-                
-                // Выбор элементов из списка
-                const items = menu.querySelectorAll('.dropdown-item');
-                items.forEach(item => {
-                    item.addEventListener('click', () => {
-                        const text = item.textContent;
-                        
-                        // Если это мультивыбор
-                        if (multiSelect) {
-                            // Проверяем, не выбран ли уже этот элемент
-                            const existingChips = Array.from(chipsContainer.querySelectorAll('.chip'));
-                            const alreadySelected = existingChips.some(chip => 
-                                chip.getAttribute('data-value') === text
-                            );
-                            
-                            if (!alreadySelected) {
-                                addChip(chipsContainer, text);
-                            }
-                        } else {
-                            // Одиночный выбор - очищаем контейнер чипсов и добавляем новый
-                            chipsContainer.innerHTML = '';
-                            addChip(chipsContainer, text);
-                            menu.classList.remove('show');
-                        }
-                        
-                        // Обновляем превью
-                        updatePreview();
-                    });
-                });
-            });
-            
-            // Функция добавления чипа
-            function addChip(container, text) {
-                const chip = document.createElement('div');
-                chip.classList.add('chip');
-                chip.setAttribute('data-value', text);
-                chip.innerHTML = `
-                    ${text}
-                    <span class="chip-close">✕</span>
-                `;
-                
-                // Обработчик удаления чипа
-                const closeBtn = chip.querySelector('.chip-close');
-                closeBtn.addEventListener('click', () => {
-                    container.removeChild(chip);
-                    updatePreview();
-                });
-                
-                container.appendChild(chip);
-            }
-            
-            // Обновление превью результатов
-            function updatePreview() {
-                const resultsPreview = document.querySelector('.results-preview');
-                let previewText = "Создай картинку как будет выглядеть дизайн с таким описанием:";
-                
-                dropdownContainers.forEach(container => {
-                    const question = container.getAttribute('data-question');
-                    const chips = container.querySelectorAll('.chip');
-                    
-                    if (chips.length > 0) {
-                        previewText += ` ${question}: `;
-                        const values = Array.from(chips).map(chip => chip.getAttribute('data-value'));
-                        previewText += values.join(', ');
-                        previewText += '.';
-                    }
-                });
-                
-                resultsPreview.textContent = previewText;
-            }
-            
-            // Кнопка копирования
-            const copyButton = document.querySelector('.copy-button');
-            const copyStatus = document.querySelector('.copy-status');
-            
-            copyButton.addEventListener('click', () => {
-                const resultsPreview = document.querySelector('.results-preview');
-                
-                // Копируем текст в буфер обмена
-                navigator.clipboard.writeText(resultsPreview.textContent).then(() => {
-                    // Показываем статус копирования
-                    copyStatus.style.display = 'inline';
-                    setTimeout(() => {
-                        copyStatus.style.display = 'none';
-                    }, 2000);
-                }).catch(err => {
-                    console.error('Ошибка при копировании: ', err);
-                });
-            });
+  <script type="text/babel">
+    const projectTypes = [
+      "Веб-сайт", "Мобильное приложение", "Лого", "Брошюра", 
+      "Плакат", "Баннер", "Визитка", "Упаковка",
+      "UI/UX для программы", "Иллюстрация", "Инфографика", "Презентация"
+    ];
+    
+    const targetAudiences = [
+      "Дети", "Подростки", "Студенты", "Молодые специалисты",
+      "Родители", "Пожилые люди", "Бизнесмены", "IT-специалисты",
+      "Творческие люди", "Женщины", "Мужчины", "Технически неподкованные"
+    ];
+    
+    const projectGoals = [
+      "Информирование", "Продажа", "Образование", "Развлечение",
+      "Привлечение клиентов", "Укрепление бренда", "Повышение узнаваемости", "Запуск нового продукта",
+      "Мотивация", "Поддержка пользователей", "Сбор данных", "Социальная миссия"
+    ];
+    
+    const designStyles = [
+      "Минимализм", "Плоский дизайн", "Материальный дизайн", "Неоморфизм",
+      "Ретро/Винтаж", "Гранж", "Рукописный", "3D",
+      "Гласморфизм", "Абстрактный", "Фотореалистичный", "Мультяшный"
+    ];
+    
+    const colorSchemes = [
+      "Монохромная", "Аналоговая", "Дополнительная", "Триадная",
+      "Тетрадная", "Пастельная", "Яркая", "Приглушенная",
+      "Черно-белая", "Земляные тона", "Холодные оттенки", "Теплые оттенки"
+    ];
+
+    function App() {
+      const [selections, setSelections] = React.useState({
+        projectType: [],
+        targetAudience: [],
+        projectGoal: [],
+        designStyle: [],
+        colorScheme: []
+      });
+
+      const handleCheckboxChange = (category, value) => {
+        setSelections(prev => {
+          const categoryItems = [...prev[category]];
+          
+          if (categoryItems.includes(value)) {
+            return {
+              ...prev,
+              [category]: categoryItems.filter(item => item !== value)
+            };
+          } else {
+            return {
+              ...prev,
+              [category]: [...categoryItems, value]
+            };
+          }
         });
-    </script>
+      };
+
+      const handleChipRemove = (category, value) => {
+        setSelections(prev => ({
+          ...prev,
+          [category]: prev[category].filter(item => item !== value)
+        }));
+      };
+
+      const getResultText = () => {
+        const lines = [
+          "Создай картинку как будет выглядеть дизайн с таким описанием:"
+        ];
+        
+        if (selections.projectType.length > 0) {
+          lines.push(`Тип проекта: ${selections.projectType.join(', ')}`);
+        }
+        
+        if (selections.targetAudience.length > 0) {
+          lines.push(`Целевая аудитория: ${selections.targetAudience.join(', ')}`);
+        }
+        
+        if (selections.projectGoal.length > 0) {
+          lines.push(`Цель проекта: ${selections.projectGoal.join(', ')}`);
+        }
+        
+        if (selections.designStyle.length > 0) {
+          lines.push(`Стиль дизайна: ${selections.designStyle.join(', ')}`);
+        }
+        
+        if (selections.colorScheme.length > 0) {
+          lines.push(`Цветовая схема: ${selections.colorScheme.join(', ')}`);
+        }
+        
+        return lines.join(' ');
+      };
+
+      const copyToClipboard = () => {
+        const text = getResultText();
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            alert('Текст скопирован в буфер обмена!');
+          })
+          .catch(err => {
+            console.error('Ошибка при копировании: ', err);
+          });
+      };
+
+      const renderQuestion = (title, category, options) => {
+        return (
+          <div className="question-section">
+            <div className="question-header">
+              <div className="question-title">{title}</div>
+              <div className="selected-chips">
+                {selections[category].map(item => (
+                  <div key={item} className="chip">
+                    {item}
+                    <span 
+                      className="chip-remove" 
+                      onClick={() => handleChipRemove(category, item)}
+                    >×</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="options-grid">
+              {options.slice(0, Math.ceil(options.length / 2)).map(option => (
+                <div key={option} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id={`${category}-${option}`}
+                    checked={selections[category].includes(option)}
+                    onChange={() => handleCheckboxChange(category, option)}
+                  />
+                  <label htmlFor={`${category}-${option}`}>{option}</label>
+                </div>
+              ))}
+              {options.slice(Math.ceil(options.length / 2)).map(option => (
+                <div key={option} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id={`${category}-${option}`}
+                    checked={selections[category].includes(option)}
+                    onChange={() => handleCheckboxChange(category, option)}
+                  />
+                  <label htmlFor={`${category}-${option}`}>{option}</label>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      };
+
+      return (
+        <div className="app-container">
+          <h1>Помощник графического дизайнера</h1>
+          
+          {renderQuestion('Тип проекта', 'projectType', projectTypes)}
+          {renderQuestion('Целевая аудитория', 'targetAudience', targetAudiences)}
+          {renderQuestion('Цель проекта', 'projectGoal', projectGoals)}
+          {renderQuestion('Стиль дизайна', 'designStyle', designStyles)}
+          {renderQuestion('Цветовая схема', 'colorScheme', colorSchemes)}
+          
+          <div className="result-section">
+            <h2>Результат</h2>
+            <div className="preview-container">
+              {getResultText()}
+            </div>
+            <button className="copy-button" onClick={copyToClipboard}>
+              Скопировать результат
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
 </body>
 </html>
