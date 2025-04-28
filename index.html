@@ -7,97 +7,151 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
   <style>
+    :root {
+      --accent-color: #3498db;
+      --accent-light: #e1f0fa;
+      --text-color: #333;
+      --border-color: #e0e0e0;
+      --background-color: #fff;
+      --heading-height: 32px;
+    }
+    
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 900px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 20px;
-      color: #333;
+      color: var(--text-color);
+      background-color: var(--background-color);
     }
+    
     .app-container {
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
+    
     h1 {
-      color: #2c3e50;
-      font-size: 24px;
-      margin-bottom: 20px;
+      font-size: 20px;
+      padding: 15px 20px;
+      margin: 0;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-color);
     }
+    
     .question-section {
-      margin-bottom: 30px;
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border-color);
     }
+    
     .question-header {
       display: flex;
       align-items: center;
-      margin-bottom: 15px;
+      min-height: var(--heading-height);
+      margin-bottom: 12px;
     }
+    
     .question-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-right: 15px;
-      min-width: 150px;
+      font-size: 16px;
+      font-weight: 500;
+      margin-right: 10px;
+      white-space: nowrap;
     }
+    
     .selected-chips {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 6px;
     }
+    
     .chip {
-      background-color: #e0f2f1;
+      background-color: var(--accent-light);
       border-radius: 16px;
-      padding: 5px 12px;
-      font-size: 14px;
-      color: #00796b;
+      padding: 4px 10px;
+      font-size: 13px;
+      color: var(--accent-color);
       display: flex;
       align-items: center;
     }
+    
     .chip-remove {
-      margin-left: 6px;
+      margin-left: 5px;
       cursor: pointer;
       font-weight: bold;
     }
+    
+    .divider {
+      height: 1px;
+      background-color: var(--border-color);
+      margin: 5px 0 10px 0;
+    }
+    
     .options-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
     }
+    
     .checkbox-item {
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
     }
+    
     input[type="checkbox"] {
       margin-right: 8px;
     }
+    
     .result-section {
-      margin-top: 30px;
-      border-top: 1px solid #e0e0e0;
-      padding-top: 20px;
+      padding: 15px 20px;
     }
+    
+    .result-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    
     .preview-container {
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--border-color);
       border-radius: 6px;
-      padding: 15px;
+      padding: 12px;
       background-color: #f9f9f9;
       margin-bottom: 15px;
-      min-height: 100px;
+      font-size: 14px;
+      line-height: 1.5;
     }
+    
+    .button-group {
+      display: flex;
+      align-items: center;
+    }
+    
     .copy-button {
-      background-color: #2196f3;
+      background-color: var(--accent-color);
       color: white;
       border: none;
       border-radius: 4px;
-      padding: 8px 16px;
+      padding: 8px 14px;
       cursor: pointer;
       font-size: 14px;
-      transition: background-color 0.3s;
+      transition: background-color 0.2s;
     }
+    
     .copy-button:hover {
-      background-color: #0d8bf2;
+      background-color: #2980b9;
+    }
+    
+    .copy-message {
+      margin-left: 12px;
+      color: var(--accent-color);
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .copy-message.visible {
+      opacity: 1;
     }
   </style>
 </head>
@@ -143,6 +197,8 @@
         designStyle: [],
         colorScheme: []
       });
+      
+      const [copyMessage, setCopyMessage] = React.useState(false);
 
       const handleCheckboxChange = (category, value) => {
         setSelections(prev => {
@@ -201,7 +257,8 @@
         const text = getResultText();
         navigator.clipboard.writeText(text)
           .then(() => {
-            alert('Текст скопирован в буфер обмена!');
+            setCopyMessage(true);
+            setTimeout(() => setCopyMessage(false), 2000);
           })
           .catch(err => {
             console.error('Ошибка при копировании: ', err);
@@ -225,6 +282,7 @@
                 ))}
               </div>
             </div>
+            <div className="divider"></div>
             <div className="options-grid">
               {options.slice(0, Math.ceil(options.length / 2)).map(option => (
                 <div key={option} className="checkbox-item">
@@ -264,13 +322,18 @@
           {renderQuestion('Цветовая схема', 'colorScheme', colorSchemes)}
           
           <div className="result-section">
-            <h2>Результат</h2>
+            <div className="result-title">Результат</div>
             <div className="preview-container">
               {getResultText()}
             </div>
-            <button className="copy-button" onClick={copyToClipboard}>
-              Скопировать результат
-            </button>
+            <div className="button-group">
+              <button className="copy-button" onClick={copyToClipboard}>
+                Скопировать результат
+              </button>
+              <div className={`copy-message ${copyMessage ? 'visible' : ''}`}>
+                Скопировано!
+              </div>
+            </div>
           </div>
         </div>
       );
